@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ivycamlink",
-    version="0.1.1",
+    version="0.1.2",
     author="Logan",
     author_email="lgnbrown@icloud.com",
     description="A lightweight ADB link bridge connecting headless Android cameras straight to OpenCV pipelines.",
