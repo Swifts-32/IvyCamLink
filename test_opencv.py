@@ -1,17 +1,23 @@
 import cv2
 from ivycamlink import IvyCamCapture
 
+def on_focus_changed(val, cap_instance):
+    # Callback trigger when trackbar moves
+    cap_instance.set_focus(val)
+
 def main():
-    # Initialize the camera receiver via the custom botanical module
     cap = IvyCamCapture(port=5001)
     
     if not cap.open():
         print("Failed to launch IvyCam link pipeline.")
         return
 
-    cv2.namedWindow("IvyCam Stream Processing", cv2.WINDOW_NORMAL)
+    window_name = "IvyCam Stream Processing"
+    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
-    print("Pipeline running successfully. Directing matrix data arrays to OpenCV...")
+    cv2.createTrackbar("Focus", window_name, 0, 100, lambda val: on_focus_changed(val, cap))
+
+    print("Pipeline running. Move the 'Focus' slider bar to adjust camera lens...")
     while True:
         success, frame = cap.read()
         
@@ -20,7 +26,7 @@ def main():
             break
 
         # Display the frame matrix inside the window
-        cv2.imshow("IvyCam Stream Processing", frame)
+        cv2.imshow(window_name, frame)
 
         # Handle keyboard exits safely
         if cv2.waitKey(1) & 0xFF == ord('q'):

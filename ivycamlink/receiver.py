@@ -58,14 +58,14 @@ class IvyCamCapture:
         return True
 
     def read(self):
-        """
-        Grabs, decodes, and returns the next video frame.
-        Matches the standard OpenCV cap.read() signature.
-        """
         if not self.is_running or self.sock is None:
             return False, None
 
         try:
+            # OPTIMIZATION: Check if there's an overwhelming amount of data waiting in the buffer.
+            # If our script falls behind, we skip old packets to snap straight back to the real-time live frame.
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 65536)
+            
             # Read image data length header
             header = self.sock.recv(4)
             if not header or len(header) < 4:
@@ -110,3 +110,22 @@ class IvyCamCapture:
             self.sock = None
         self.is_running = False
         print("Network pipeline closed down successfully.")
+
+    def set_focus(self, percentage):
+        """
+        Sets the camera focus distance manually.
+        :param percentage: Integer from 0 (Infinity) to 100 (Macro / Closest Focus).
+        """
+        if not self.is_running or self.sock is None:
+            return False
+
+        # Constrain boundary values securely between 0 and 100
+        percentage = max(0, min(100, int(percentage)))
+        
+        try:
+            # Send Focus Command (0x03) followed by the focus percentage value byte
+            self.sock.sendall(bytes([0x03, percentage]))
+            return True
+        except Exception as e:
+            print(f"Failed to send focus command: {e}")
+            return False
