@@ -1,5 +1,5 @@
 import cv2
-from ivycamlink import IvyCamCapture
+from src.ivycamlink import IvyCamCapture
 
 def on_focus_changed(val, cap_instance):
     # Callback trigger when trackbar moves
